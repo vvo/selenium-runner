@@ -1,26 +1,3 @@
-selenium-runner
-===============
-
-Run a [{url+JSTest}, ..] combo in selenium grid, in parallel, in multiple browsers.
-
-You need a working [selenium-grid-nodes](http://code.google.com/p/selenium/wiki/Grid2) stack.
-Or, you could use [saucelabs](https://saucelabs.com/).
-
-Basically, this module will launch a set of tests, in the browsers you want.
-A test is defined by a URL to visit and a JavaScript callback to execute when the page
-is ready.
-
-This JavaScript callback is given a `browser` object which exposes the full selenium's [JsonWireProtocol](http://code.google.com/p/selenium/wiki/JsonWireProtocol) in JavaScript.
-
-Have a look at [admc/wd](https://github.com/admc/wd/) for all available methods.
-
-```bash
-npm install
-node example
-```
-
-example.js
-```js
 // What we want: test if http://google.com title is 'Google' is the main browsers.
 
 var seleniumRunner = require('./');
@@ -82,4 +59,3 @@ seleniumRunner({
   concurrency: concurrency,
   browsers: browsers
 }, tests, testCallback, allTestsEnded);
-```
