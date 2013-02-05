@@ -1,6 +1,6 @@
 {
   "name": "selenium-runner",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Run a [{url+JSTest}, ..] combo in selenium grid, in parallel, in multiple browsers",
   "main": "index.js",
   "repository": {
