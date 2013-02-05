@@ -4,9 +4,8 @@ var browse = require('./browse');
 /**
  * This function launch an array of `tests` in every `browsers` connected to a selenium grid
  * described by `remoteCfg`
- * Each test gets `cb` called with err, context (file, browser)
- * Each browser can launch 2 tests in parallel
- * If you try to do more than 2 tests in parallel, it frequently fails, selenium is unstable
+ * Each test gets `testCb` called with err, context (url, browser)
+ * Each browser will launch opt.concurrency tests in parallel
 */
 module.exports = function seleniumRunner (opt, tests, testCb, endCb) {
     filterBrowsers(opt.browsers, opt.remoteCfg, browsersFound);
