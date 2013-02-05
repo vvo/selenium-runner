@@ -12,6 +12,9 @@
     "async": "0.1.x",
     "selenium-grid-status": "0.0.x"
   },
+  "scripts": {
+    "test": "node example"
+  },
   "keywords": [
     "selenium",
     "runner",
