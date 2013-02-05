@@ -1,0 +1,14 @@
+{
+  "remoteCfg": {
+    "host": "127.0.0.1",
+    "port": 4444
+  },
+  "browsers": [{
+    "browserName": "internet explorer",
+    "version": "8"
+  }, {
+    "browserName": "chrome",
+    "version": "latest"
+  }],
+  "concurrency": 2
+}
