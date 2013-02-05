@@ -3,83 +3,108 @@ selenium-runner
 
 Run a [{url+JSTest}, ..] combo in selenium grid, in parallel, in multiple browsers.
 
-You need a working [selenium-grid-nodes](http://code.google.com/p/selenium/wiki/Grid2) stack.
-Or, you could use [saucelabs](https://saucelabs.com/).
-
 Basically, this module will launch a set of tests, in the browsers you want.
 A test is defined by a URL to visit and a JavaScript callback to execute when the page
 is ready.
-
-This JavaScript callback is given a `browser` object which exposes the full selenium's [JsonWireProtocol](http://code.google.com/p/selenium/wiki/JsonWireProtocol) in JavaScript.
-
-Have a look at [admc/wd](https://github.com/admc/wd/) for all available methods.
 
 ```bash
 npm install
 node example
 ```
 
-example.js
+## Writing tests
+
+We want to check the `<title>` of http://www.google.com in multiple browsers.
+We will run the same test on http://www.yahoo.com and it will fail because the title
+is different.
+
+### Test file
+
+Write your test file, it's a callback that will get a ready [browser object](https://github.com/admc/wd/).
+
+check-title.js
 ```js
-// What we want: test if http://google.com title is 'Google' is the main browsers.
-
-var seleniumRunner = require('./');
-
-// Actual initialization takes place in
-
-// tests to run
-var tests = [{
-  url: 'http://www.google.com',
-  exec: checkTitle
-}];
-
-// where is the selenium-grid ?
-var remoteCfg = {
-  "host": "127.0.0.1",
-  "port": 4444
-};
-
-// how many tests a browser can do in parallel ?
-var concurrency = 2;
-
-// which browser to launch ?
-// Please, always put browser versions in strings. Selenium requirement.
-var browsers = [{
-  "browserName": "internet explorer",
-  "version": "9"
-}, {
-  "browserName": "chrome",
-  "version": "latest"
-}];
-
-// API methods available in browser: see https://github.com/admc/wd/
-function checkTitle(browser, cb) {
+module.exports = function checkTitle(browser, cb) {
   browser.title(function(err, title) {
     if (err !== null) cb(err);
 
     if (title === 'Google') {
       cb(null);
     } else {
-      cb(new Error('UH OH TEST FAILED!'))
+      cb(new Error('UH OH Title is not ok! Are you on google.com?'));
     }
   });
 }
+```
+### Some configuration
 
+* remoteCfg: Where is the [selenium grid](http://code.google.com/p/selenium/wiki/Grid2), you can
+also use [saucelabs](https://saucelabs.com/)
+* browsers: On which browsers to launch every test
+* concurrency: How many tests a browser can launch in parallel
+
+config.json
+```json
+{
+  "remoteCfg": {
+    "host": "127.0.0.1",
+    "port": 4444
+  },
+  "browsers": [{
+    "browserName": "internet explorer",
+    "version": "9"
+  }, {
+    "browserName": "chrome",
+    "version": "latest"
+  }],
+  "concurrency": 2
+}
+```
+
+### Run them all!
+
+launcher.js
+```js
+var seleniumRunner = require('selenium-runner');
+
+// tests to run
+var tests = [{
+  url: 'http://www.google.com',
+  exec: require('./check-title.js')
+}, {
+  url: 'http://www.yahoo.com',
+  exec: require('./check-title.js')
+}];
+
+var config = require('./config.json');
+
+// launch tests
+seleniumRunner(config, tests, testCallback, endCallback);
+
+// For each browser, you get the result of calling your test (check-title) here
+// You always get the context: browser + called url
 function testCallback(err, context) {
-  console.log(arguments);
-  // For each browser, you get the result of calling checkTitle here
-  // You always get the context: browser + called url
+  console.log('A test finished', arguments);
 }
 
-function allTestsEnded(err) {
-  console.log(arguments);
-  // When all tests have finished running, you get this callback
+// Called when all tests have finished/or an error popped while connecting to the grid
+// It will not get called when an error is emitted from a test
+function endCallback(err) {
+  console.log('All tests ended', arguments);
 }
+```
 
-// Let's go baby
-seleniumRunner({
-  remoteCfg: remoteCfg,
-  concurrency: concurrency,
-  browsers: browsers
-}, tests, testCallback, allTestsEnded);
+### Results
+
+```bash
+-> % node example
+A test finished { '0': null,
+  '1': 'http://www.google.com on {"browserName":"chrome","version":"latest"}' }
+A test finished { '0': [Error: UH OH Title is not ok! Are you on google.com?],
+  '1': 'http://www.yahoo.com on {"browserName":"chrome","version":"latest"}' }
+A test finished { '0': null,
+  '1': 'http://www.google.com on {"browserName":"internet explorer","version":"8"}' }
+A test finished { '0': [Error: UH OH Title is not ok! Are you on google.com?],
+  '1': 'http://www.yahoo.com on {"browserName":"internet explorer","version":"8"}' }
+All tests ended { '0': null }
 ```
