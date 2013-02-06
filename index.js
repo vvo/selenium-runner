@@ -38,7 +38,11 @@ module.exports = function seleniumRunner (opt, tests, testCb, endCb) {
 function launchTest (opt, cb) {
     browse(opt.url, opt.desired, opt.remoteCfg, function(err, browser) {
         opt.exec(browser, function(err) {
-            var context = opt.url + " on " + JSON.stringify(opt.desired);
+            var context = {
+                url: opt.url,
+                browser: opt.desired
+            };
+
             browser.quit(function() {
                 cb(err, context);
             });

@@ -82,7 +82,7 @@ var config = require('./config.json');
 seleniumRunner(config, tests, testCallback, endCallback);
 
 // For each browser, you get the result of calling your test (check-title) here
-// You always get the context: browser + called url
+// You always get the context: {url: 'http://', browser: {browserName: '', version: }}
 function testCallback(err, context) {
   console.log('A test finished', arguments);
 }
@@ -98,13 +98,22 @@ function endCallback(err) {
 
 ```bash
 -> % node example
+You should get 4 test callbacks and one end callback
 A test finished { '0': null,
-  '1': 'http://www.google.com on {"browserName":"chrome","version":"latest"}' }
-A test finished { '0': [Error: UH OH Title is not ok! Are you on google.com?],
-  '1': 'http://www.yahoo.com on {"browserName":"chrome","version":"latest"}' }
+  '1':
+   { url: 'http://www.google.com',
+     browser: { browserName: 'internet explorer', version: '9' } } }
 A test finished { '0': null,
-  '1': 'http://www.google.com on {"browserName":"internet explorer","version":"8"}' }
+  '1':
+   { url: 'http://www.google.com',
+     browser: { browserName: 'chrome', version: 'latest' } } }
 A test finished { '0': [Error: UH OH Title is not ok! Are you on google.com?],
-  '1': 'http://www.yahoo.com on {"browserName":"internet explorer","version":"8"}' }
+  '1':
+   { url: 'http://www.yahoo.com',
+     browser: { browserName: 'chrome', version: 'latest' } } }
+A test finished { '0': [Error: UH OH Title is not ok! Are you on google.com?],
+  '1':
+   { url: 'http://www.yahoo.com',
+     browser: { browserName: 'internet explorer', version: '9' } } }
 All tests ended { '0': null }
 ```
